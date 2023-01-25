@@ -19,7 +19,7 @@ class PKPlugin extends Plugin {
 		this.verbose && console.log(`publishkit ➔`, ...args);
 	};
 
-	#notice = (str: string, time: number = 4000) => {
+	notice = (str: string, time: number = 4000) => {
 		new Notice(str, time);
 	};
 
@@ -29,13 +29,6 @@ class PKPlugin extends Plugin {
 		// this.pklib.parser.jsdom = jsdom;
 		this.obs = new Obs(this);
 
-		const reloadIconEl = this.addRibbonIcon(
-			"reset",
-			"Reload Obsidian",
-			(evt: MouseEvent) => {
-				(app as any).commands.executeCommandById("app:reload");
-			}
-		);
 		const iconCurrent = this.addRibbonIcon(
 			"paper-plane",
 			"PublishKit",
@@ -56,12 +49,12 @@ class PKPlugin extends Plugin {
 		// @ts-ignore
 		window.pklib = pklib;
 
-		if (pklib.error) return this.#notice(pklib.error, 10000);
+		if (pklib.error) return this.notice(pklib.error, 10000);
 
 		if (!pklib.pkrc) return this.initSetup();
 		if (!pklib.cfg("vault.export_folder")) {
 			const msg = '💥 missing "vault.export_folder" setting in pkrc.md';
-			return this.#notice(msg);
+			return this.notice(msg);
 		}
 
 		this.statusbar = this.addStatusBarItem();
@@ -70,9 +63,11 @@ class PKPlugin extends Plugin {
 
 		this.app.metadataCache.on("changed", async (file) => {
 			try {
-				if (file.path == "pkrc.md") pklib.reloadPkrc();
+				if (file.path == "pkrc.md") {
+					pklib.reloadPkrc();
+				}
 			} catch (e) {
-				this.#notice(pklib.betterError(e));
+				this.notice(pklib.betterError(e));
 			}
 		});
 
@@ -129,24 +124,24 @@ class PKPlugin extends Plugin {
 
 	public exportCurrentNote = async (options: ObjectAny) => {
 		const file = app.workspace.getActiveFile();
-		if (!file) return this.#notice("no active note to export !");
+		if (!file) return this.notice("no active note to export !");
 		options = options || { follow: false };
 		// options.dry = true;
 		const result = await this.pklib.exportFile(file.path, options);
 		// this.startReport();
-		this.#notice(result.summary);
+		this.notice(result.summary);
 		console.log(result.summary);
 	};
 
-	public exportCurrentNoteFollow = async () => {
-		this.exportCurrentNote({ follow: true });
-	};
+	// public exportCurrentNoteFollow = async () => {
+	// 	this.exportCurrentNote({ follow: true });
+	// };
 
 	public exportAllNotes = async () => {
 		const files = await this.pklib.vault.lsFiles();
 		const result = await this.pklib.exportFile(files, { dry: true });
 		this.startReport();
-		console.log("eresult", result);
+		// console.log("eresult", result);
 	};
 
 	private bindObsidian = () => {
@@ -221,20 +216,34 @@ class PKPlugin extends Plugin {
 				};
 
 				txs.push([
-					"a.internal-link",
+					"a",
 					async (el: any) => {
 						const href = el.getAttribute("href") || "";
+
 						const file = app.metadataCache.getFirstLinkpathDest(
 							href,
 							""
 						);
-						el.removeAttribute("target"); // only for internal
+
+						el.removeAttribute("target");
+						el.classList.remove("is-unresolved");
+						el.classList.remove("internal-link");
+						el.classList.remove("external-link");
+
+						// wikilink
 						if (file) {
+							el.classList.add("internal-link");
 							const asset = await fileToAsset(file.path);
-							parser.index(asset);
 							el.setAttribute("href", asset.url);
-						} else if (href.startsWith("#")) true;
-						else el.replaceWith((<HTMLElement>el).innerText);
+							parser.index(asset);
+						} else {
+							if (href.includes("//"))
+								el.classList.add("external-link");
+							else el.classList.add("internal-link");
+						}
+
+						if (el.classList.contains("external-link"))
+							el.setAttribute("target", "_blank");
 					},
 				]);
 

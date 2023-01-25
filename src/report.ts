@@ -1,5 +1,4 @@
 import { Modal, Setting } from "obsidian";
-import filer from "./lib/filer";
 import PKPlugin from "../main";
 
 interface Data {
@@ -28,47 +27,44 @@ export default class ReportModal extends Modal {
 		const cache = pklib.parser.cache;
 
 		const data = (this.data = Object.values(cache.note));
-		console.log("pof", cache);
+		const summary = pklib.parser.print()
+		console.log("preview cache", cache);
 
-		contentEl.createEl("h1", { text: "Publish Kit Report" });
+		contentEl.createEl("h1", { text: "Export preview" });
 
-		// new Setting(contentEl).setName(
-		// 	`${data.rows.length} files (${filer.filesize(data.size)})`
-		// );
-		// // .addSearch((btn) =>
-		// //     btn.onChange(v => {
-		// //         console.log('ooo', v)
-		// //     })
-		// // );
-
-		for (let i = 0; i < 100; i++) {
-			data.push({ path: "contact.mddd" });
-		}
+		new Setting(contentEl).setName(
+			`About to export ${data.length} notes in "${pklib.pkrc.vault.export_folder}"`
+		);
 
 		data.forEach((asset: Asset) => {
 			const row = new Setting(contentEl);
 
 			row.setName(asset.path)
 				// .setDesc([date, size].join(" - "))
-				.addExtraButton((btn) =>
-					btn.setIcon("trash").onClick(() => {})
-				);
-
-			const checkbox = createCheckbox();
-			row.nameEl.classList.add("d-flex");
-			row.nameEl.prepend(checkbox);
+				// .addExtraButton((btn) =>
+				// 	btn.setIcon("trash").onClick(() => {})
+				// );
 		});
 
-		// new Setting(contentEl)
-		// .addButton((btn) =>
-		//     btn
-		//     .setButtonText("Done")
-		//     .setCta()
-		//     .onClick(() => {
-		//         this.close();
-		//         this.onSubmit();
-		//     }));
+		new Setting(contentEl)
+		.addButton((btn) =>
+		    btn
+		    .setButtonText("Export")
+		    .setCta()
+		    .onClick(async () => {
+				await pklib.dumpFiles()
+				await pklib.dbSave()
+				pkplugin.notice(summary)
+		        // this.onSubmit();
+		        this.close();
+		    }));
 	}
+
+	// // .addSearch((btn) =>
+	// //     btn.onChange(v => {
+	// //         console.log('ooo', v)
+	// //     })
+	// // );
 
 	// async onOpen() {
 	// 	const { contentEl } = this;
@@ -110,9 +106,8 @@ const createCheckbox = (label: string) => {
 	checkBox.setAttribute("type", "checkbox");
 	checkBox.checked = true;
 
-
-//     <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
-// <label for="vehicle1"> I have a bike</label>
+	//     <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
+	// <label for="vehicle1"> I have a bike</label>
 
 	return checkBox;
 };

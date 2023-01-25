@@ -1,22 +1,17 @@
 export const Commands: Commands[] = [
 	{
 		id: "exportCurrentNote",
-		name: "Export note",
+		name: "📄  Export active note",
 		desc: "",
 	},
-	{
-		id: "exportCurrentNoteFollow",
-		name: "Export note + linked notes",
-		desc: "",
-	},
+	// {
+	// 	id: "exportCurrentNoteFollow",
+	// 	name: "Export note + linked notes",
+	// 	desc: "",
+	// },
 	{
 		id: "exportAllNotes",
-		name: "Export all notes found in vault",
+		name: "📁  Export vault",
 		desc: "",
-	},
-	{
-		id: "getReport",
-		name: "Get files report",
-		desc: "",
-	},
+	}
 ];
