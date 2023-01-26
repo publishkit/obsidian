@@ -128,9 +128,9 @@ class PKPlugin extends Plugin {
 		options = options || { follow: false };
 		// options.dry = true;
 		const result = await this.pklib.exportFile(file.path, options);
-		// this.startReport();
-		this.notice(result.summary);
-		console.log(result.summary);
+		// // this.startReport();
+		// this.notice(result.summary);
+		// console.log(result.summary);
 	};
 
 	// public exportCurrentNoteFollow = async () => {
@@ -237,7 +237,7 @@ class PKPlugin extends Plugin {
 							el.setAttribute("href", asset.url);
 							parser.index(asset);
 						} else {
-							if (href.includes("//"))
+							if (href.startsWith("https://") || href.startsWith("//") || href.startsWith("http://"))
 								el.classList.add("external-link");
 							else el.classList.add("internal-link");
 						}

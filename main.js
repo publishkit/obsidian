@@ -14288,11 +14288,11 @@ var require_pklib = __commonJS({
           const { utils: e2, cfg: n2 } = this.pklib, r2 = `${this.base}/**/*.${t2}`;
           let i2 = await e2.file.glob(r2);
           i2 = i2.map((t3) => t3.replace(`${this.base}/`, ""));
-          const s2 = e2.a.asArray(n2(`${this.type}.include`) || []), a2 = e2.a.asArray(n2(`${this.type}.exclude`) || []), o2 = i2.filter((t3) => {
+          const s2 = e2.a.asArray(n2(`${this.type}.include`) || []), a2 = e2.a.asArray(n2(`${this.type}.exclude`) || []);
+          return i2.filter((t3) => {
             const e3 = !s2.length || s2.find((e4) => t3.search(new RegExp(e4)) >= 0 && e4), n3 = a2.find((e4) => t3.search(new RegExp(e4)) >= 0 && e4);
             return e3 && !n3;
           });
-          return console.log("lsFiles", o2), o2;
         });
         this.pklib = t2, this.type = e2;
       }
@@ -17194,9 +17194,6 @@ ${n2.map((e3) => {
 <meta property="og:title" content="${r3("og.title") || r3("title")}" />
 <meta property="og:description" content="${r3("og.description") || r3("description") || r3("site.description") || ""}" />${Object.entries(e3("og", {})).reduce((t4, [e4, r4]) => ["title", "description"].includes(e4) ? t4 : t4 + `
 <meta property="og:${e4}" content="${n3(r4)}" />`, "")}
-<link rel="apple-touch-icon" sizes="180x180" href="assets/favicons/apple-touch-icon.png" />
-<link rel="icon" type="image/png" sizes="32x32" href="assets/favicons/favicon-32x32.png" />
-<link rel="icon" type="image/png" sizes="16x16" href="assets/favicons/favicon-16x16.png" />
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/publishkit/sdk@latest/sdk.js"><\/script>
 `;
           })({ cfg: this.cfg }), i2 = e2.tags, s2 = n2.o.clone(e2.frontmatter, "password"), a2 = n2.s.beautify(((t3 = {}) => `
@@ -17655,8 +17652,6 @@ var PKPlugin = class extends import_obsidian5.Plugin {
         return this.notice("no active note to export !");
       options = options || { follow: false };
       const result = await this.pklib.exportFile(file.path, options);
-      this.notice(result.summary);
-      console.log(result.summary);
     };
     this.exportAllNotes = async () => {
       const files = await this.pklib.vault.lsFiles();
@@ -17731,7 +17726,7 @@ var PKPlugin = class extends import_obsidian5.Plugin {
               el.setAttribute("href", asset.url);
               parser.index(asset);
             } else {
-              if (href.includes("//"))
+              if (href.startsWith("https://") || href.startsWith("//") || href.startsWith("http://"))
                 el.classList.add("external-link");
               else
                 el.classList.add("internal-link");
