@@ -17108,7 +17108,7 @@ ${n2.map((e3) => {
             return [i2[e3 - 1], t3].join("/");
           }), a2 = await Promise.allSettled(s2.map(async (t3) => {
             try {
-              const r3 = await e2.read(`${t3}/_dir.md`, { encoding: "utf-8" }), { frontmatter: i3 } = n2.md.parseFrontmatter(r3);
+              const r3 = await e2.read(`${t3}/dirrc.md`, { encoding: "utf-8" }), { frontmatter: i3 } = n2.md.parseFrontmatter(r3);
               return !!Object.keys(i3).length && i3;
             } catch (t4) {
               return false;
@@ -17136,7 +17136,7 @@ ${n2.map((e3) => {
                   t4.content = JSON.stringify(e4, null, 2), t4.url = "pkrc.json", t4.type = "json", n2.index(t4);
                   continue;
                 }
-                if (t4.path.split("/").pop() == "_dir.md") {
+                if (t4.path.split("/").pop() == "dirrc.md") {
                   const e4 = r2.o.clone(s3.frontmatter, "obsidian,vault,password");
                   t4.content = JSON.stringify(e4, null, 2), t4.url = t4.path.replace(".md", ".json"), t4.type = "json", n2.index(t4);
                   continue;
@@ -17652,6 +17652,8 @@ var PKPlugin = class extends import_obsidian5.Plugin {
         return this.notice("no active note to export !");
       options = options || { follow: false };
       const result = await this.pklib.exportFile(file.path, options);
+      this.notice(result.summary);
+      console.log(result.summary);
     };
     this.exportAllNotes = async () => {
       const files = await this.pklib.vault.lsFiles();

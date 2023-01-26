@@ -128,9 +128,8 @@ class PKPlugin extends Plugin {
 		options = options || { follow: false };
 		// options.dry = true;
 		const result = await this.pklib.exportFile(file.path, options);
-		// // this.startReport();
-		// this.notice(result.summary);
-		// console.log(result.summary);
+		this.notice(result.summary);
+		console.log(result.summary);
 	};
 
 	// public exportCurrentNoteFollow = async () => {
