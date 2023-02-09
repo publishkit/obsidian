@@ -1,7 +1,7 @@
 {
-	"name": "publishkit",
-	"version": "0.9.4",
-	"description": "Ship markdown based websites",
+	"name": "publishkit-obsidian",
+	"version": "0.9.5",
+	"description": "Markdown web apps",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
@@ -29,7 +29,7 @@
 		"typescript": "4.7.4"
 	},
 	"dependencies": {
-		"@publishkit/pklib": "^0.9.4",
+		"@publishkit/pklib": "0.9.5",
 		"filesize": "^10.0.5",
 		"fs-extra": "^10.1.0",
 		"glob": "^8.0.3",

@@ -1,9 +1,9 @@
 {
 	"id": "publishkit",
 	"name": "PublishKit",
-	"version": "0.9.3",
-	"minAppVersion": "0.9.3",
-	"description": "Ship mardown based websites",
+	"version": "0.9.5",
+	"minAppVersion": "0.9.5",
+	"description": "Mardown web apps",
 	"author": "larafale",
 	"authorUrl": "publishkit.dev",
 	"isDesktopOnly": true

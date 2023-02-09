@@ -17073,6 +17073,27 @@ ${n2.map((e3) => {
         }
       }
     };
+    var ia = (t2 = {}) => {
+      const { cfg: e2 } = t2, n2 = (t3) => {
+        return typeof (n3 = e2(t3)) == "string" ? n3.replace(/"/g, "'") : n3;
+        var n3;
+      }, r2 = e2("og", {}), i2 = "url,title,description,image,name,keyswords".split(",").reduce((t3, e3) => {
+        var i3;
+        return t3[e3] = n2(i3 = e3) || n2(`og.${i3}`) || n2(`site.${i3}`) || "", "url,title,description,image".includes(e3) && (r2[e3] = t3[e3]), e3 == "name" && (r2.site_name = t3[e3]), t3;
+      }, {}), s2 = (t3, e3) => Object.keys(t3).reduce((n3, r3) => {
+        const i3 = e3 ? "property" : "name", s3 = e3 ? `og:${r3}` : r3, a3 = t3[r3];
+        return n3 + (t3[r3] && `<meta ${i3}="${s3}" content="${a3}" />` || "");
+      }, "");
+      i2.viewport = "width=device-width, initial-scale=1, maximum-scale=1";
+      const a2 = s2(i2), o2 = s2(r2, true);
+      return `
+<title>${e2("title")}</title>
+<meta charset="utf-8" />
+${a2}
+${o2}
+<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/publishkit/kit@latest/init.js"><\/script>
+`;
+    };
     var _t2, _a;
     module2.exports = (_a = class {
       constructor(t2 = {}) {
@@ -17184,19 +17205,7 @@ ${n2.map((e3) => {
           return await Promise.all([this.kit.dumpNotes(t2.json), this.kit.dumpNotes(t2.note), this.kit.dumpAssets(t2.image, "base64"), this.kit.dumpAssets(t2.pdf)]);
         });
         __publicField(this, "buildHTML", async (t2, e2 = {}) => {
-          const { utils: n2 } = this, r2 = ((t3 = {}) => {
-            const { cfg: e3 } = t3, n3 = (t4) => typeof t4 == "string" ? t4.replace(/"/g, "'") : t4, r3 = (t4) => n3(e3(t4));
-            return `
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>${e3("title")}</title>
-<meta name="description" content="${r3("description") || r3("site.description") || r3("og.description") || ""}" />
-<meta property="og:title" content="${r3("og.title") || r3("title")}" />
-<meta property="og:description" content="${r3("og.description") || r3("description") || r3("site.description") || ""}" />${Object.entries(e3("og", {})).reduce((t4, [e4, r4]) => ["title", "description"].includes(e4) ? t4 : t4 + `
-<meta property="og:${e4}" content="${n3(r4)}" />`, "")}
-<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/publishkit/sdk@latest/sdk.js"><\/script>
-`;
-          })({ cfg: this.cfg }), i2 = e2.tags, s2 = n2.o.clone(e2.frontmatter, "password"), a2 = n2.s.beautify(((t3 = {}) => `
+          const { utils: n2 } = this, r2 = ia({ cfg: this.cfg }), i2 = e2.tags, s2 = n2.o.clone(e2.frontmatter, "password"), a2 = n2.s.beautify(((t3 = {}) => `
 <template id="frontmatter">
 ${JSON.stringify(t3.frontmatter)}
 </template>
@@ -17279,10 +17288,14 @@ ${t2.message}` : t2, e2;
 
 vault:
     export_folder: ${t3.vault.export_folder}
+    include: 
+      - '^pkrc.md'
+      - '^(index|navbar).md$'
+      - '^blog/'
     exclude: 
       - '^kit/'
       - '^templates/'
-      - '^test/'
+      - '^blog/draft'
 
 # \u{1F680} PublishKit
 
@@ -17297,22 +17310,20 @@ site:
   id: ${t3.site.id}
   name: ${t3.site.name}
   description: Welcome to ${t3.site.name}
-  url: https://publishkit.dev
-  theme: default
+  url: https://your-site-domain.com
 
 
 # \u{1F4E6} Plugins
 
 plugins: 
+  theme: "@default"
   header: true
   modal: true
-  fonts: true
   darkmode: true
   navbar: true
   toc: true
   search: true
   social: true
-  highlight: true
 
 
 # \u2699\uFE0F  Plugins settings
@@ -17320,13 +17331,6 @@ plugins:
 header:
   fluid: true
   contrast: true
-
-fonts:
-  font: Marcher
-  headings: Marcher
-
-highlight:
-  theme: arta
 
 social:
   github: https://publishkit.dev
@@ -17696,7 +17700,7 @@ var PKPlugin = class extends import_obsidian5.Plugin {
       });
       pklib.parser.setRemovers({
         el: ".collapse-indicator,.list-bullet,.inline-title,.embedded-backlinks,.copy-code-button,.frontmatter-container,.frontmatter,.markdown-preview-pusher,.mod-header,.markdown-embed-link,.markdown-embed,.embed-title",
-        class: ".pdf-embed,.media-embed,.internal-embed,.has-list-bullet,.contains-task-list,.task-list-item,.task-list-item-checkbox,.is-checked,.dataview-inline-query,.image-embed,.is-loaded",
+        class: ".table-view-table,.pdf-embed,.media-embed,.internal-embed,.has-list-bullet,.contains-task-list,.task-list-item,.task-list-item-checkbox,.is-checked,.dataview-inline-query,.image-embed,.is-loaded",
         attr: "rel,data-task,data-line,data-heading,data-href,aria-label,aria-label-position,referrerpolicy",
         emptyAttr: "class,data-callout-metadata,data-callout-fold",
         emptyTags: "div,p"
