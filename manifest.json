@@ -1,10 +1,10 @@
 {
 	"id": "obsidian-kit",
 	"name": "KIT",
-	"version": "1.0.0",
-	"minAppVersion": "1.0.0",
+	"version": "1.0.1",
+	"minAppVersion": "1.0.1",
 	"description": "Publish full featured web apps with markdown",
 	"author": "larafale",
-	"authorUrl": "publishkit.dev",
+	"authorUrl": "https://publishkit.dev",
 	"isDesktopOnly": true
 }

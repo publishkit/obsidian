@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-kit",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Publish full featured web apps with markdown",
 	"main": "main.js",
 	"scripts": {
