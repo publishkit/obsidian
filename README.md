@@ -6,7 +6,7 @@ More at https://publishkit.dev
 ## install
 
 - repo url https://github.com/publishkit/obsidian
-- manually clone the repo inside your `.obsidian/plugins` folder.
+- manually clone this repo inside your `.obsidian/plugins` folder.
 - or install via the [BRAT](https://github.com/TfTHacker/obsidian42-brat) plugin
 
 ## use
@@ -15,7 +15,6 @@ More at https://publishkit.dev
 - or in command palette, run `KIT: export file` or `KIT: export vault`
 - you can assign a shortcut to any of those commands. <kbd>⌘</kbd>+<kbd>⇧</kbd>+<kbd>E</kbd> works pretty well for single file exports.
 
-> [!note] Vault export
 > Make sure you configure the `include` & `exclude` vault parameters inside the `kitrc`.
 
 
