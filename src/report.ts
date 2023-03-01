@@ -2,7 +2,7 @@ import { Modal, Setting } from "obsidian";
 import PKPlugin from "../main";
 
 interface Data {
-	obsidian: { export_folder: string };
+	obsidian: { kit_folder: string };
 	site: { id: string; name: string };
 }
 
@@ -33,7 +33,7 @@ export default class ReportModal extends Modal {
 		contentEl.createEl("h1", { text: "Export preview" });
 
 		new Setting(contentEl).setName(
-			`About to export ${data.length} notes in "${pklib.pkrc.vault.export_folder}"`
+			`About to export ${data.length} notes in "${pklib.kitrc.vault.kit_folder}"`
 		);
 
 		data.forEach((asset: Asset) => {

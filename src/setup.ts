@@ -2,7 +2,7 @@ import { Modal, Setting } from "obsidian";
 import PKPlugin from "../main";
 
 interface Data {
-	vault: { export_folder: string };
+	vault: { kit_folder: string };
 	site: { id: string; name: string };
 }
 
@@ -26,7 +26,7 @@ export default class SetupModal extends Modal {
 		const { pklib } = pkplugin;
 
 		const data: Data = (this.data = {
-			vault: { export_folder: pklib.env.vault + "/kit" },
+			vault: { kit_folder: pklib.env.vault + "/kit" },
 			site: { id: "", name: "" },
 		});
 
@@ -39,9 +39,9 @@ export default class SetupModal extends Modal {
 			.setDesc("absolute path - ex: /Users/batman/mywebsite")
 			.addText((text) => {
 				return text
-					.setValue(data.vault.export_folder)
+					.setValue(data.vault.kit_folder)
 					.onChange((value) => {
-						data.vault.export_folder = value;
+						data.vault.kit_folder = value;
 					});
 			});
 

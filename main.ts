@@ -51,9 +51,9 @@ class PKPlugin extends Plugin {
 
 		if (pklib.error) return this.notice(pklib.error, 10000);
 
-		if (!pklib.pkrc) return this.initSetup();
-		if (!pklib.cfg("vault.export_folder")) {
-			const msg = '💥 missing "vault.export_folder" setting in pkrc.md';
+		if (!pklib.kitrc) return this.initSetup();
+		if (!pklib.cfg("vault.kit_folder")) {
+			const msg = '💥 missing "vault.kit_folder" setting in kitrc.md';
 			return this.notice(msg);
 		}
 
@@ -63,8 +63,8 @@ class PKPlugin extends Plugin {
 
 		this.app.metadataCache.on("changed", async (file) => {
 			try {
-				if (file.path == "pkrc.md") {
-					pklib.reloadPkrc();
+				if (file.path == "kitrc.md") {
+					pklib.reloadKitrc();
 				}
 			} catch (e) {
 				this.notice(pklib.betterError(e));
@@ -102,15 +102,15 @@ class PKPlugin extends Plugin {
 
 	private initSetup = () => {
 		return new Setup(this, async (data: object) => {
-			await this.pklib.createPkrc(data);
-			const file = this.obs.getFile("pkrc.md");
+			await this.pklib.createKitrc(data);
+			const file = this.obs.getFile("kitrc.md");
 			file && this.obs.openFile(file, { newPane: true });
 		}).open();
 	};
 
 	public runCommand = async (key: string, ...args: any[]) => {
 		// this.#log("run", key);
-		if (!this.pklib.pkrc) return this.initSetup();
+		if (!this.pklib.kitrc) return this.initSetup();
 		(this as any)[key](...args);
 	};
 
@@ -191,10 +191,10 @@ class PKPlugin extends Plugin {
 
 		pklib.parser.setRemovers({
 			el: ".collapse-indicator,.list-bullet,.inline-title,.embedded-backlinks,.copy-code-button,.frontmatter-container,.frontmatter,.markdown-preview-pusher,.mod-header,.markdown-embed-link,.markdown-embed,.embed-title",
-			class: ".table-view-table,.pdf-embed,.media-embed,.internal-embed,.has-list-bullet,.contains-task-list,.task-list-item,.task-list-item-checkbox,.is-checked,.dataview-inline-query,.image-embed,.is-loaded",
+			class: ".list-view-ul,.table-view-table,.pdf-embed,.media-embed,.internal-embed,.has-list-bullet,.contains-task-list,.task-list-item,.task-list-item-checkbox,.is-checked,.dataview-inline-query,.image-embed,.is-loaded",
 			attr: "rel,data-task,data-line,data-heading,data-href,aria-label,aria-label-position,referrerpolicy",
 			emptyAttr: "class,data-callout-metadata,data-callout-fold",
-			emptyTags: "div,p",
+			// emptyTags: "div,p",
 		});
 
 		pklib.parser.setTransformer(
@@ -218,6 +218,7 @@ class PKPlugin extends Plugin {
 					"a",
 					async (el: any) => {
 						const href = el.getAttribute("href") || "";
+						if(!href) el.href = "javascript:void(0)"
 
 						const file = app.metadataCache.getFirstLinkpathDest(
 							href,
@@ -282,6 +283,28 @@ class PKPlugin extends Plugin {
 						$(el).parent().addClass("pdf");
 					},
 				]);
+
+				txs.push([
+					"ul > span",
+					async (el: any) => {
+						el.remove()
+					},
+				])
+
+				txs.push([
+					"li > span",
+					async (el: any) => {
+						if(!$(el).html()) el.remove()
+					},
+				])
+
+				txs.push([
+					".block-language-dataviewjs",
+					async (el: any) => {
+						const content = $(`<ul>${$(el).find("> ul").html()}</ul>`)
+						$(el).replaceWith(content);
+					},
+				])
 
 				// flatten embed recursivly
 				txs.push([
