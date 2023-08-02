@@ -6,6 +6,7 @@ import Report from "src/report";
 import { Commands } from "src/commands";
 // @ts-ignore
 import PKLib from "@publishkit/pklib";
+
 // @ts-ignore
 // import jsdom from "jsdom"
 
@@ -185,13 +186,14 @@ class PKPlugin extends Plugin {
 
 			const frontmatter = obs.getFrontmatter(file);
 			const tags = obs.getTags(file);
+			const backlinks = obs.getBacklinks(file);
 			const html = await getHTML();
 			return { frontmatter, html, tags };
 		});
 
 		pklib.parser.setRemovers({
 			el: ".collapse-indicator,.list-bullet,.inline-title,.embedded-backlinks,.copy-code-button,.frontmatter-container,.frontmatter,.markdown-preview-pusher,.mod-header,.markdown-embed-link,.markdown-embed,.embed-title",
-			class: ".list-view-ul,.table-view-table,.pdf-embed,.media-embed,.internal-embed,.has-list-bullet,.contains-task-list,.task-list-item,.task-list-item-checkbox,.is-checked,.dataview-inline-query,.image-embed,.is-loaded",
+			class: ".pdf-toolbar,.pdf-container,.list-view-ul,.table-view-table,.pdf-embed,.media-embed,.internal-embed,.has-list-bullet,.contains-task-list,.task-list-item,.task-list-item-checkbox,.is-checked,.dataview-inline-query,.image-embed,.is-loaded",
 			attr: "rel,data-task,data-line,data-heading,data-href,aria-label,aria-label-position,referrerpolicy",
 			emptyAttr: "class,data-callout-metadata,data-callout-fold",
 			// emptyTags: "div,p",
@@ -208,17 +210,15 @@ class PKPlugin extends Plugin {
 
 				const isInternal = (path: any) => {
 					if (!path.startsWith("app://")) return "";
-					const local = window.decodeURIComponent(
-						(path.match(/app:\/\/local([^?#]+)/) as any)[1]
-					);
-					return local.replace(vault.base + "/", "");
+					const local = path.split(vault.base)[1].split("?")[0];
+					return local;
 				};
 
 				txs.push([
 					"a",
 					async (el: any) => {
 						const href = el.getAttribute("href") || "";
-						if(!href) el.href = "javascript:void(0)"
+						if (!href) el.href = "javascript:void(0)";
 
 						const file = app.metadataCache.getFirstLinkpathDest(
 							href,
@@ -237,13 +237,74 @@ class PKPlugin extends Plugin {
 							el.setAttribute("href", asset.url);
 							parser.index(asset);
 						} else {
-							if (href.startsWith("https://") || href.startsWith("//") || href.startsWith("http://"))
+							if (
+								href.startsWith("https://") ||
+								href.startsWith("//") ||
+								href.startsWith("http://")
+							)
 								el.classList.add("external-link");
 							else el.classList.add("internal-link");
 						}
 
 						if (el.classList.contains("external-link"))
 							el.setAttribute("target", "_blank");
+					},
+				]);
+
+				txs.push([
+					"img",
+					async (el: any) => {
+						"alt,"
+							.split(",")
+							.map((attr) => el.removeAttribute(attr));
+						const path = isInternal(el.getAttribute("src"));
+						const asset = path && (await fileToAsset(path));
+
+						if (!asset) return;
+						el.setAttribute("src", asset.url);
+						parser.index(asset);
+					},
+				]);
+
+				txs.push([
+					".pdf-embed",
+					async (el: any) => {
+						try {
+							const filename = el.getAttribute("src");
+							const path =
+								filename &&
+								`${obs.getAttachementsFolder()}/${filename}`;
+							const asset = path && (await fileToAsset(path));
+
+							if (!asset) return;
+							parser.index(asset);
+
+							const iframe = document.createElement("iframe");
+							iframe.src = path;
+							iframe.setAttribute("frameborder", "no");
+							el.removeAttribute("style");
+							$(el).addClass("pdf");
+							$(el).empty().append(iframe);
+
+							$(body).find(".pdf-content-container").parent().remove()
+							$(body).find(".pdf-toolbar-left").parent().remove()
+						} catch (e) {
+							console.log("dsddd", e);
+						}
+					},
+				]);
+
+				txs.push([
+					"ul > span",
+					async (el: any) => {
+						el.remove();
+					},
+				]);
+
+				txs.push([
+					"li > span",
+					async (el: any) => {
+						if (!$(el).html()) el.remove();
 					},
 				]);
 
@@ -257,54 +318,14 @@ class PKPlugin extends Plugin {
 				]);
 
 				txs.push([
-					"img",
-					async (el: any) => {
-						"alt,"
-							.split(",")
-							.map((attr) => el.removeAttribute(attr));
-						const path = isInternal(el.getAttribute("src"));
-						const asset = path && (await fileToAsset(path));
-						if (!asset) return;
-						el.setAttribute("src", asset.url);
-						parser.index(asset);
-					},
-				]);
-
-				txs.push([
-					".pdf-embed iframe",
-					async (el: any) => {
-						const path = isInternal(el.getAttribute("src"));
-						const asset = path && (await fileToAsset(path));
-						if (!asset) return;
-						el.setAttribute("src", asset.url);
-						el.setAttribute("frameBorder", "no");
-						el.removeAttribute("style");
-						parser.index(asset);
-						$(el).parent().addClass("pdf");
-					},
-				]);
-
-				txs.push([
-					"ul > span",
-					async (el: any) => {
-						el.remove()
-					},
-				])
-
-				txs.push([
-					"li > span",
-					async (el: any) => {
-						if(!$(el).html()) el.remove()
-					},
-				])
-
-				txs.push([
 					".block-language-dataviewjs",
 					async (el: any) => {
-						const content = $(`<ul>${$(el).find("> ul").html()}</ul>`)
+						const content = $(
+							`<ul>${$(el).find("> ul").html()}</ul>`
+						);
 						$(el).replaceWith(content);
 					},
-				])
+				]);
 
 				// flatten embed recursivly
 				txs.push([

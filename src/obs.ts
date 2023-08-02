@@ -81,6 +81,12 @@ class Obs {
 		console.log("getall");
 	};
 
+	getAttachementsFolder = () => {
+		const { vault } = this.pkplugin.app;
+		// @ts-ignore
+		return vault.config.attachmentFolderPath;
+	};
+
 	getFrontmatter(path: TFile | string) {
 		const file = this.getFile(path);
 		const fm = file
@@ -105,6 +111,18 @@ class Obs {
 			tags[index] = tag.replace("#", "");
 		});
 		return tags;
+	}
+
+	// TODO: finish the implementation
+	getBacklinks(path: TFile | string) {
+		// const file = this.getFile(path);
+		// if (!file) return [];
+		// const metafile =
+		// 	this.pkplugin.app.metadataCache.getBacklinksForFile(file);
+		const links: string[] = []; // metafile
+		// console.log("GETBACKLINKS", metafile)
+		// return clean version of metafile
+		return links;
 	}
 
 	updateFrontmatter(contents: string, field: string, value: any) {
